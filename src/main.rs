@@ -23,7 +23,6 @@ struct Sticker {
 
 #[tokio::main]
 async fn main() {
-    // Ask the user to input the sticker pack ID
     println!("Enter the Sticker Pack ID:");
     let mut pack_id_input = String::new();
     std::io::stdin().read_line(&mut pack_id_input).expect("Failed to read line");
@@ -32,7 +31,6 @@ async fn main() {
     let pack_meta = fetch_pack_metadata(pack_id).await;
     let pack_name = sanitize_and_create_folder(&pack_meta.title.en);
 
-    // Determine if the pack contains any animated stickers
     let contains_animated = check_for_animated_stickers(pack_id, &pack_meta.stickers).await;
 
     if contains_animated {
@@ -44,7 +42,7 @@ async fn main() {
 
         download_stickers(pack_id, &pack_meta.stickers, &pack_name, &file_type).await;
     } else {
-        // If only PNGs are present, automatically download them
+        // If only PNGs present, skip file type choice
         println!("This pack contains only PNG stickers. Downloading PNGs...");
         download_static_stickers(&pack_meta.stickers, &pack_name).await;
     }
@@ -134,7 +132,7 @@ async fn download_animated_stickers(pack_id: u32, stickers: &[Sticker], pack_nam
         save_image(&apng_url, &apng_path).await;
         convert_apng_to_gif(&apng_path, &gif_path).expect("Failed to convert APNG to GIF");
 
-        // Optionally, remove the APNG file after conversion to GIF
+        // Remove APNG file after conversion to GIF
         fs::remove_file(&apng_path).expect("Failed to delete APNG file");
     }
 }
