@@ -77,8 +77,9 @@ ID like you would on a pc.
 
 ## Future Plans
 
-- Add support for downloading Telegram sticker packs.
-- Improve user interface and add more customization options.
+- support batch downloads
+- support for downloading Telegram sticker packs
+- GUI version
 
 ## Contributing
 
