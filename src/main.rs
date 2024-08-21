@@ -34,8 +34,7 @@ async fn main() {
             println!("This pack contains only PNG stickers. Downloading PNGs...");
             download_static_stickers(&pack_meta.stickers, &pack_name).await;
         }
-
-        // Ask if user wants to download another sticker pack
+        
         println!("Do you want to download another sticker pack? (yes/no)");
         let mut answer = String::new();
         io::stdin().read_line(&mut answer).expect("Failed to read line");

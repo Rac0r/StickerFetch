@@ -1,7 +1,6 @@
 use std::fs;
 use std::path::{PathBuf};
 
-/// Sanitizes a folder name and creates it if it doesn't exist.
 pub fn sanitize_and_create_folder(name: &str) -> String {
     let sanitized_name: String = name
         .chars()
@@ -16,7 +15,6 @@ pub fn sanitize_and_create_folder(name: &str) -> String {
     sanitized_name
 }
 
-/// Saves an image from a URL to the specified path.
 pub async fn save_image(url: &str, path: &PathBuf) {
     match reqwest::get(url).await {
         Ok(response) if response.status().is_success() => {
