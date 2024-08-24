@@ -1,45 +1,41 @@
-mod metadata;
+mod line;
+mod telegram;
 mod download;
-mod conversion;
 mod utils;
-
-use std::io;
-use metadata::fetch_pack_metadata;
-use download::{check_for_animated_stickers, download_stickers, download_static_stickers};
-use utils::sanitize_and_create_folder;
+mod token;
 
 #[tokio::main]
 async fn main() {
+    let bot_token = token::get_bot_token().await;
+
     loop {
-        println!("Enter the Sticker Pack ID:");
-        let mut pack_id_input = String::new();
-        io::stdin().read_line(&mut pack_id_input).expect("Failed to read line");
-        let pack_id: u32 = pack_id_input.trim().parse().expect("Please enter a valid number");
+        println!("Select the platform to download stickers from (Line/Telegram):");
+        let mut platform_choice = String::new();
+        std::io::stdin().read_line(&mut platform_choice).expect("Failed to read input");
 
-        let pack_meta = fetch_pack_metadata(pack_id).await;
-        let pack_name = sanitize_and_create_folder(&pack_meta.title.en);
+        match platform_choice.trim().to_lowercase().as_str() {
+            "line" => {
+                line::download_line_stickers().await;
+            }
+            "telegram" => {
+                println!("Enter the Telegram sticker set name:");
+                let mut sticker_set_name = String::new();
+                std::io::stdin().read_line(&mut sticker_set_name).expect("Failed to read input");
 
-        let contains_animated = check_for_animated_stickers(pack_id, &pack_meta.stickers).await;
-
-        if contains_animated {
-            // Ask user for desired file type if animations are present
-            println!("Select the type of files you want to download: png, gif, or both");
-            let mut file_type = String::new();
-            io::stdin().read_line(&mut file_type).expect("Failed to read line");
-            let file_type = file_type.trim().to_lowercase();
-
-            download_stickers(pack_id, &pack_meta.stickers, &pack_name, &file_type).await;
-        } else {
-            // If only PNGs are present, skip file type choice
-            println!("This pack contains only PNG stickers. Downloading PNGs...");
-            download_static_stickers(&pack_meta.stickers, &pack_name).await;
+                telegram::download_telegram_stickers(&bot_token, sticker_set_name.trim()).await;
+            }
+            _ => {
+                println!("Invalid choice. Please enter 'Line' or 'Telegram'.");
+            }
         }
-        
-        println!("Do you want to download another sticker pack? (yes/no)");
-        let mut answer = String::new();
-        io::stdin().read_line(&mut answer).expect("Failed to read line");
-        if answer.trim().eq_ignore_ascii_case("no") {
+
+        println!("Do you want to download another sticker pack? (yes/no):");
+        let mut another = String::new();
+        std::io::stdin().read_line(&mut another).expect("Failed to read input");
+
+        if another.trim().to_lowercase() != "yes" {
             break;
         }
     }
 }
+
